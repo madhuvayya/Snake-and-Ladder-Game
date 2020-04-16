@@ -1,21 +1,32 @@
 #!/bin/bash -x
 
+WIN_POS=100
 playerPos=0
 
-random=$((1+RANDOM%6))
-option=$((RANDOM%3))
-echo option $option
+while true
+do
+	random=$((1+RANDOM%6))
+	option=$((RANDOM%3))
 
-case $option in
-	0 )
-		echo "NO play stay in same position"
-		;;
-	1 )
-		playerPos=$(($playerPos+$random))
-		;;
-	2 )
-		playerPos=$(($playerPos-$random))
-		;;
-esac
+	case $option in
+		0 )
+			;;
+		1 )
+			playerPos=$(($playerPos+$random))
+			;;
+		2 )
+			playerPos=$(($playerPos-$random))
+			;;
+	esac
 
-echo "player position" $playerPos
+	if [ $playerPos -lt 0 ]
+	then
+		playerPos=0
+	fi
+
+	if [ $playerPos -eq $WIN_POS ]
+	then
+		echo "Player reached winning position:" $playerPos
+		exit
+	fi
+done
