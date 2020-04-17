@@ -1,63 +1,78 @@
 #!/bin/bash -x
 
 START_POS=0
-WIN_POS=10
+WIN_POS=100
 
-player1Pos=0
-player2Pos=0
+echo "Enter number of players:"
+read n
+
+declare -A players
+declare -A dieRolledCount
 
 count=0
+
+players(){
+	for((i=1;i<=$n;i++))
+	do
+		players[$i]=0
+	done
+}
 
 move(){
 	playerPos=$1
 
-	random=$((1+RANDOM%6))
+	die=$((1+RANDOM%6))
 	option=$((RANDOM%3))
-	prevPos=0
 
 	case $option in
 		0 )
+			#No change in player position
 			;;
 		1 )
 			prevPos=$playerPos
-			playerPos=$(($playerPos+$random))
+			playerPos=$(($playerPos+$die))
+
+			if [ $playerPos -gt $WIN_POS ]
+			then
+				playerPos=$prevPos
+			fi
 			;;
 		2 )
-			playerPos=$(($playerPos-$random))
+			playerPos=$(($playerPos-$die))
+
+			if [ $playerPos -lt $START_POS ]
+			then
+				playerPos=0
+			fi
 			;;
 	esac
-
-	if [ $playerPos -lt $START_POS ]
-	then
-		playerPos=0
-	elif [ $playerPos -gt $WIN_POS ]
-	then
-		playerPos=$prevPos
-	fi
 
 	echo $playerPos
 }
 
-while true
-do
-	#Invoking move function
-	player1Pos=$( move $player1Pos )
-	p1sPos[((count))]=$player1Pos
+start(){
+	while true
+	do
+		for((i=1;i<=$n;i++))
+		do
 
-	player2Pos=$( move $player2Pos )
-	p2sPos[((count++))]=$player2Pos
+			#Invoking move function
+			players[$i]=$( move ${players[$i]} )
 
-	if [ $player1Pos -eq $WIN_POS ]
-	then
-		echo "Player1 Won"
-		echo "Player1 positions:" ${p1sPos[@]}
-		echo "Number of times dice rolled:" ${#p1sPos[@]}
-		exit
-	elif [ $player2Pos -eq $WIN_POS ]
-	then
-		echo "Player2 Won"
-		echo "Player2 positions:" ${p2sPos[@]}
-		echo "Number of times dice rolled:" ${#p2sPos[@]}
-		exit
-	fi
-done
+			echo "player $i positio:" ${players[$i]}
+
+			if [ ${players[$i]} -eq $WIN_POS ]
+			then
+				echo "Player $i Won"
+				echo "Plyers positions:" ${players[@]}
+				exit
+			fi
+		done
+	done
+}
+
+#Invoking players function
+players
+
+#Invoking start function to start the game
+start
